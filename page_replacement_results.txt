@@ -1,0 +1,36 @@
+Page Replacement Experiments
+
+Experiment 1:
+Memory cap = 160 frames
+Children = 2
+File faults = 175
+Evictions = 143
+Reloads = 113
+
+Experiment 2:
+Memory cap = 160 frames
+Children = 4
+File faults = 295
+Evictions = 239
+Reloads = 183
+
+Experiment 3:
+Memory cap = 80 frames
+Children = 4
+File faults = 196
+Evictions = 135
+Reloads = 99
+
+Experiment 4:
+Memory cap = 40 frames
+Children = 4
+File faults = 271
+Evictions = 215
+Reloads = 161
+
+Experiment 5:
+Memory cap = 40 frames
+Children = 8
+File faults = 339
+Evictions = 222
+Reloads = 159
