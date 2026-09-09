@@ -36,6 +36,9 @@ Observed:
     replace  : evictions=0 reloads=0
 
 The system had no page-replacement activity because no artificial memory cap was imposed.
+<img width="942" height="792" alt="Screenshot 2026-09-09 132732" src="https://github.com/user-attachments/assets/02edf854-a573-4980-b983-d27e22e4dd2e" />
+
+
 
 ## 4. Page Replacement Benchmark
 
@@ -48,6 +51,8 @@ The page-replacement implementation was evaluated under multiple artificial memo
 | 30 frames  | 6       | 338         | 255       | 186     |
 
 The results show increasing replacement activity as the available frame cap is reduced. Evictions increased from 191 at 60 frames to 255 at 30 frames, while reloads increased from 145 to 186. This demonstrates that Module 3 responds to increased memory pressure by reclaiming and subsequently reloading clean reloadable pages.
+<img width="926" height="706" alt="Screenshot 2026-09-09 140900" src="https://github.com/user-attachments/assets/cf6ce5f7-54d9-4602-b9df-d0568ce7ed77" />
+
 
 ## 5. Memory Snapshot After Stress Test
 
