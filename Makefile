@@ -153,6 +153,7 @@ UPROGS=\
 	$U/_memtop\
 	$U/_cowtest\
 	$U/_stresstest\
+	$U/_bsstest\
 
 fs.img: mkfs/mkfs README README.md $(UPROGS)
 	mkfs/mkfs fs.img README README.md $(UPROGS)
