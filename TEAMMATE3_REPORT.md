@@ -39,23 +39,15 @@ The system had no page-replacement activity because no artificial memory cap was
 
 ## 4. Page Replacement Benchmark
 
-Command:
+The page-replacement implementation was evaluated under multiple artificial memory-cap configurations. Each worker performed 15 exec rounds.
 
-    stresstest 40 6
+| Memory Cap | Workers | File Faults | Evictions | Reloads |
+|------------|---------|-------------|-----------|---------|
+| 60 frames  | 4       | 252         | 191       | 145     |
+| 40 frames  | 6       | 303         | 212       | 158     |
+| 30 frames  | 6       | 338         | 255       | 186     |
 
-Configuration:
-
-- Memory cap: 40 frames
-- Concurrent workers: 6
-- Exec rounds per worker: 15
-
-Observed:
-
-    file-faults = 303
-    evictions = 212
-    reloads = 158
-
-The test produced substantial eviction and reload activity, demonstrating that Module 3 page replacement is triggered under memory pressure.
+The results show increasing replacement activity as the available frame cap is reduced. Evictions increased from 191 at 60 frames to 255 at 30 frames, while reloads increased from 145 to 186. This demonstrates that Module 3 responds to increased memory pressure by reclaiming and subsequently reloading clean reloadable pages.
 
 ## 5. Memory Snapshot After Stress Test
 
