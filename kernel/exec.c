@@ -89,17 +89,17 @@ filefault(struct proc *p, uint64 va)
 
   for (int i = 0; i < p->nsegs; i++) {
     if (p->segs[i].valid && va >= p->segs[i].vabeg && va < p->segs[i].vaend) {
-      seg = &p->segs[i];
+      seg = &p->segs[i];    // Find which segment this faulting address belongs to
       break;
     }
   }
   if (seg == 0)
     return 0; // not actually inside any demand-paged segment
 
-  uint64 mem = (uint64)kalloc();
+  uint64 mem = (uint64)kalloc();    // (1) grab one empty page
   if (mem == 0)
     return 0;
-  memset((void *)mem, 0, PGSIZE);
+  memset((void *)mem, 0, PGSIZE);    // (2) zero it first
 
   // How much of this page actually has file content behind it?
   uint64 seg_off = va - seg->vabeg; // offset within the segment
@@ -111,7 +111,7 @@ filefault(struct proc *p, uint64 va)
 
   if (n > 0) {
     ilock(seg->ip);
-    int ok = readi(seg->ip, 0, mem, seg->fileoff + seg_off, n);
+    int ok = readi(seg->ip, 0, mem, seg->fileoff + seg_off, n);    //(3) read just that much
     iunlock(seg->ip);
     if (ok != n) {
       kfree((void *)mem);
@@ -127,7 +127,7 @@ filefault(struct proc *p, uint64 va)
   if (pte && (*pte & PTE_PG))
     *pte = 0;
 
-  if (mappages(p->pagetable, va, PGSIZE, mem, seg->perm | PTE_R | PTE_U) != 0) {
+  if (mappages(p->pagetable, va, PGSIZE, mem, seg->perm | PTE_R | PTE_U) != 0) {    // (4) mark it "present"
     kfree((void *)mem);
     return 0;
   }
@@ -139,7 +139,7 @@ filefault(struct proc *p, uint64 va)
   // (PTE_X and/or PTE_R without PTE_W) pages -- i.e. .text -- are
   // always safe, since re-running filefault() reproduces them exactly.
   int evictable = (seg->perm & PTE_W) == 0;
-  frame_register(mem, p, va, FRAME_FILE, evictable);
+  frame_register(mem, p, va, FRAME_FILE, evictable);    // (5) tell Module 3 about it
   memstat_filefault();
 
   return mem;
@@ -189,7 +189,7 @@ kexec(char *path, char **argv)
   // We just grow `sz` and record a segdesc; filefault() does the real
   // work later, one page at a time, on demand.
   for (i = 0, off = elf.phoff; i < elf.phnum; i++, off += sizeof(ph)) {
-    if (readi(ip, 0, (uint64)&ph, off, sizeof(ph)) != sizeof(ph))
+    if (readi(ip, 0, (uint64)&ph, off, sizeof(ph)) != sizeof(ph))  // read ONE small header, not the program
       goto bad;
     if (ph.type != ELF_PROG_LOAD)
       continue;
@@ -207,13 +207,13 @@ kexec(char *path, char **argv)
       sz = segend;
 
     newsegs[nnewsegs].valid = 1;
-    newsegs[nnewsegs].vabeg = PGROUNDDOWN(ph.vaddr);
-    newsegs[nnewsegs].vaend = segend;
-    newsegs[nnewsegs].ip = idup(ip); // keep the executable open for the
+    newsegs[nnewsegs].vabeg = PGROUNDDOWN(ph.vaddr);        // where this segment starts in memory
+    newsegs[nnewsegs].vaend = segend;                       // where it ends
+    newsegs[nnewsegs].ip = idup(ip); // keep the executable open for the  // a reference to the FILE (not its contents)
                                      // lifetime of this process image
-    newsegs[nnewsegs].fileoff = ph.off - (ph.vaddr - newsegs[nnewsegs].vabeg);
-    newsegs[nnewsegs].filesz = ph.filesz + (ph.vaddr - newsegs[nnewsegs].vabeg);
-    newsegs[nnewsegs].perm = flags2perm(ph.flags);
+    newsegs[nnewsegs].fileoff = ph.off - (ph.vaddr - newsegs[nnewsegs].vabeg);    // WHERE in the file this segment's bytes live
+    newsegs[nnewsegs].filesz = ph.filesz + (ph.vaddr - newsegs[nnewsegs].vabeg);  // HOW MANY bytes of real file content there are
+    newsegs[nnewsegs].perm = flags2perm(ph.flags);          // read/write/execute permissions
     nnewsegs++;
   }
   iunlockput(ip);
