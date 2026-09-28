@@ -185,3 +185,13 @@ Every person should still be able to explain the fault-dispatch diagram
 above and how their module fits into it — that shared understanding is
 what makes this look like one cohesive subsystem instead of four
 unrelated patches, and it's exactly what an examiner will probe for.
+
+## License
+
+This project is a modification of [xv6-riscv](https://github.com/mit-pdos/xv6-riscv),
+which is released under the MIT License. Our changes (demand paging, copy-on-write
+fork, clock page replacement, and the `meminfo`/`setmemcap` instrumentation) are
+released under the same MIT License.
+
+See [LICENSE](LICENSE) for the full text, including the original xv6 copyright
+notice and the copyright notice for this project's modifications.
